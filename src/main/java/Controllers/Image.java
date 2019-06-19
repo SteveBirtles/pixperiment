@@ -1,6 +1,5 @@
 package Controllers;
 
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -18,6 +17,8 @@ import java.util.UUID;
 
 @Path("image/")
 public class Image {
+
+    public static final int TILE_SIZE = 128;
 
     @GET
     @Path("list")
@@ -72,19 +73,19 @@ public class Image {
 
             int read;
             byte[] bytes = new byte[1024];
-            OutputStream outputStream = new FileOutputStream(new File("resources/client/img/" + id + "_temp"));
+            OutputStream outputStream = new FileOutputStream(new File("resources/" + id + "_temp"));
             while ((read = fileInputStream.read(bytes)) != -1) {
                 outputStream.write(bytes, 0, read);
             }
             outputStream.flush();
             outputStream.close();
 
-            File tempFile = new File("resources/client/img/" + id + "_temp");
+            File tempFile = new File("resources/" + id + "_temp");
             BufferedImage originalImage = ImageIO.read(tempFile);
 
-            BufferedImage resizedImage = new BufferedImage(200, 200, originalImage.getType() == 0? BufferedImage.TYPE_INT_ARGB : originalImage.getType());
+            BufferedImage resizedImage = new BufferedImage(TILE_SIZE, TILE_SIZE, originalImage.getType() == 0? BufferedImage.TYPE_INT_ARGB : originalImage.getType());
             Graphics2D g = resizedImage.createGraphics();
-            g.drawImage(originalImage, 0, 0, 200, 200, null);
+            g.drawImage(originalImage, 0, 0, TILE_SIZE, TILE_SIZE, null);
             g.dispose();
 
             String newPath = "/client/img/" + id + ".jpg";

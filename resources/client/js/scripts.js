@@ -2,6 +2,10 @@ let images = [];
 let tiles = [];
 let spinner;
 
+const TILE_SIZE = 128;
+const CANVAS_WIDTH = 1152;
+const CANVAS_HEIGHT = 896;
+
 function pageLoad() {
 
     spinner = new Image();
@@ -11,7 +15,6 @@ function pageLoad() {
     update();
 
     document.getElementById('canvas').addEventListener("click", canvasClick)
-
 
 }
 
@@ -27,8 +30,8 @@ function canvasClick(event) {
 
     let canvas = document.getElementById('canvas');
 
-    x = Math.floor((x - canvas.offsetLeft) / 200);
-    y = Math.floor((y - canvas.offsetTop) / 200);
+    x = Math.floor((x - canvas.offsetLeft) / TILE_SIZE);
+    y = Math.floor((y - canvas.offsetTop) / TILE_SIZE);
 
     let imageFormData = new FormData(imageForm);
 
@@ -109,7 +112,7 @@ function drawCanvas() {
         for (let image of images) {
             if (image.src.endsWith(tile.path)) {
                 context.save();
-                context.translate(tile.x * 200, tile.y * 200);
+                context.translate(tile.x * TILE_SIZE, tile.y * TILE_SIZE);
                 context.drawImage(image, 0, 0);
                 context.restore();
                 loaded = true;
@@ -119,7 +122,7 @@ function drawCanvas() {
 
         if (!loaded) {
             context.save();
-            context.translate(tile.x * 200 + 50, tile.y * 200 + 50);
+            context.translate(tile.x * TILE_SIZE + (TILE_SIZE - 100) / 2, tile.y * TILE_SIZE + (TILE_SIZE - 100) / 2);
             context.drawImage(spinner, 0, 0);
             context.restore();
         }

@@ -14,8 +14,8 @@ import java.util.ArrayList;
 @Path("tile/")
 public class Tile {
 
-    private static final int MAX_X = 10;
-    private static final int MAX_Y = 10;
+    private static final int MAX_X = 9;
+    private static final int MAX_Y = 7;
 
     static class TileModel {
         int x;
@@ -65,7 +65,5 @@ public class Tile {
 
         return "{\"status\": \"OK\"}";
     }
-
-
 
 }
