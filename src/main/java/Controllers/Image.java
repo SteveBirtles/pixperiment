@@ -88,9 +88,9 @@ public class Image {
             g.drawImage(originalImage, 0, 0, TILE_SIZE, TILE_SIZE, null);
             g.dispose();
 
-            String newPath = "/client/img/" + id + ".jpg";
+            String newPath = "/client/img/" + id + ".png";
 
-            ImageIO.write(resizedImage, "jpg", new File("resources" + newPath));
+            ImageIO.write(resizedImage, "png", new File("resources" + newPath));
             if (!tempFile.delete()) {
                 throw new IOException("Failed to delete temp file.");
             }

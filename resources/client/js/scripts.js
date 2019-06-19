@@ -1,6 +1,6 @@
 let images = [];
 let tiles = [];
-let spinner;
+let loading;
 
 const TILE_SIZE = 128;
 const CANVAS_WIDTH = 1152;
@@ -8,8 +8,8 @@ const CANVAS_HEIGHT = 896;
 
 function pageLoad() {
 
-    spinner = new Image();
-    spinner.src = "/client/img/loading.png";
+    loading = new Image();
+    loading.src = "/client/img/loading.png";
 
     setInterval(update, 1000);
     update();
@@ -23,20 +23,18 @@ function canvasClick(event) {
     let imageFile = document.getElementById("file");
     if (imageFile.files[0] === undefined) return;
 
-    let imageForm = document.getElementById("imageUploadForm");
-
-    let x = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-    let y = event.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-
     let canvas = document.getElementById('canvas');
+    let mouseX = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft - canvas.offsetLeft;
+    let mouseY = event.clientY + document.body.scrollTop + document.documentElement.scrollTop - canvas.offsetTop;
 
-    x = Math.floor((x - canvas.offsetLeft) / TILE_SIZE);
-    y = Math.floor((y - canvas.offsetTop) / TILE_SIZE);
-
-    let imageFormData = new FormData(imageForm);
+    let x = Math.floor(mouseX / TILE_SIZE);
+    let y = Math.floor(mouseY / TILE_SIZE);
 
     tiles.push({x: x, y: y, path: "-"});
     drawCanvas();
+
+    let imageForm = document.getElementById("imageUploadForm");
+    let imageFormData = new FormData(imageForm);
 
     fetch('/image/upload', {method: 'post', body: imageFormData},
     ).then(response => response.json()
@@ -104,7 +102,7 @@ function drawCanvas() {
 
     context.globalCompositeOperation = 'source-over';
 
-    context.clearRect(0, 0, 1200, 800);
+    context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     for (let tile of tiles) {
 
@@ -123,7 +121,7 @@ function drawCanvas() {
         if (!loaded) {
             context.save();
             context.translate(tile.x * TILE_SIZE + (TILE_SIZE - 100) / 2, tile.y * TILE_SIZE + (TILE_SIZE - 100) / 2);
-            context.drawImage(spinner, 0, 0);
+            context.drawImage(loading, 0, 0);
             context.restore();
         }
 
