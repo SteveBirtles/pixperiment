@@ -1,0 +1,32 @@
+<!doctype html>
+
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+
+    <title>JavaScript Mozaic Experiment!</title>
+
+    <link rel="stylesheet" href="/client/css/styles.css">
+
+  </head>
+
+  <body onload="pageLoad()">
+
+    <div class="pageContent">
+
+        <form enctype="multipart/form-data" id="imageUploadForm">
+                <input type="file" name="file" id="file" />
+                <span id="uploading" style="display:none; color:red">Uploading...</span>
+        </form>
+
+        <canvas id="canvas" width="2000" height="2000"></canvas>
+
+    </div>
+
+    <script src="/client/js/scripts.js"></script>
+
+  </body>
+
+</html>

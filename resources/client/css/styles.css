@@ -1,0 +1,23 @@
+body {
+    background-color: navy;
+}
+
+.pageContent {
+    background-color: white;
+    min-width: 2000px;
+    max-width: 2000px;
+    padding: 10px;
+    margin: auto;
+}
+
+#imageUploadForm {
+    padding: 10px;
+    background-color: lightblue;
+}
+
+
+#canvas {
+    width: 2000px;
+    height: 2000px;
+    background-color: #eeeeee;
+}
