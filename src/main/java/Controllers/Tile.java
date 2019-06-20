@@ -17,14 +17,18 @@ public class Tile {
     private static final int MAX_X = 9;
     private static final int MAX_Y = 7;
 
-    static class TileModel {
+    static class TileModel {            // The model class for tiles, with co-ordinate and image path.
         int x;
         int y;
         String path;
     }
 
-    private static final ArrayList<TileModel> tiles = new ArrayList<>();
+    private static final ArrayList<TileModel> tiles = new ArrayList<>();        // The list of tiles.
 
+    /*-------------------------------------------------------
+    The API request handler for /tile/list
+    Prepares a JSON list of all the tiles to send to the client.
+    ------------------------------------------------------*/
     @GET
     @Path("list")
     @Produces(MediaType.APPLICATION_JSON)
@@ -44,12 +48,16 @@ public class Tile {
         return tileList.toString();
     }
 
+    /*-------------------------------------------------------
+    The API request handler for /tile/new
+    Creates a new tile object (this occurs after uploading a new image).
+    ------------------------------------------------------*/
     @POST
     @Path("new")
     @Produces(MediaType.APPLICATION_JSON)
     public String newTile(@FormDataParam("x") int x, @FormDataParam("y") int y, @FormDataParam("path") String image) {
 
-        if (x >= MAX_X) x = MAX_X - 1;
+        if (x >= MAX_X) x = MAX_X - 1;          // Check the tile is inside the allowed region.
         if (x < 0) x = 0;
         if (y >= MAX_Y) y = MAX_Y - 1;
         if (y < 0) y = 0;
@@ -59,22 +67,22 @@ public class Tile {
         for (TileModel t: tiles) {
             if (t.x == x && t.y == y) {
                 synchronized (tiles) {
-                    t.path = image;
+                    t.path = image;             // If there is already a tile at the requested location, overwrite it.
                 }
                 alreadyExists = true;
                 break;
             }
         }
 
-        if (!alreadyExists) {
+        if (!alreadyExists) {           // If there isn't a tile at the current location...
 
             TileModel t = new TileModel();
-            t.x = x;
+            t.x = x;                        // ... create a new one ...
             t.y = y;
             t.path = image;
 
             synchronized (tiles) {
-                tiles.add(t);
+                tiles.add(t);               // ... and add it to the list.
             }
 
         }

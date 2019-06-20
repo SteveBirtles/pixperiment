@@ -20,47 +20,34 @@ public class Image {
 
     public static final int TILE_SIZE = 128;
 
+    /*-------------------------------------------------------
+    The API request handler for /image/list
+    Sends a list of all the image files on the server.
+    ------------------------------------------------------*/
     @GET
     @Path("list")
     @Produces(MediaType.APPLICATION_JSON)
     public String listImages() {
 
-        ArrayList<String> images = new ArrayList<>();
-
         File folder = new File("resources/client/img");
-
-        File[] sortedFiles = folder.listFiles();
-
-        if (sortedFiles != null) {
-
-            Arrays.sort(sortedFiles, new Comparator<File>() {
-                @Override
-                public int compare(File file1, File file2) {
-                    return file1.getName().compareTo(file2.getName());
-                }
-            });
-
-            for (File file : sortedFiles) {
-                if (file.isFile()) {
-                    images.add(file.getName());
-                }
-            }
-        }
+        File[] files = folder.listFiles();                              // Get a list of all the files in the folder
 
         JSONArray responses = new JSONArray();
-
-        for (String imageFilename : images) {
-
+        for (File file : files) {                                       // Build a JSON list of the file paths...
             JSONObject image = new JSONObject();
-            image.put("path", "/client/img/" + imageFilename);
+            image.put("path", "/client/img/" + file.getName());
             responses.add(image);
         }
 
-        return responses.toString();
+        return responses.toString();                                    // ...send it to the client
 
     }
 
-
+    /*-------------------------------------------------------
+    The API request handler for /image/upload
+    Allows the client to upload an image file.
+    It will be resized to TILE_SIZE wide and high.
+    ------------------------------------------------------*/
     @POST
     @Path("upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -69,33 +56,33 @@ public class Image {
 
         try {
 
-            String id = UUID.randomUUID().toString();
+            String id = UUID.randomUUID().toString();       // Create a random file id (avoids filename clashes)
 
             int read;
             byte[] bytes = new byte[1024];
             OutputStream outputStream = new FileOutputStream(new File("resources/" + id + "_temp"));
             while ((read = fileInputStream.read(bytes)) != -1) {
-                outputStream.write(bytes, 0, read);
+                outputStream.write(bytes, 0, read);                     // Upload the file to a temporary location...
             }
             outputStream.flush();
             outputStream.close();
 
-            File tempFile = new File("resources/" + id + "_temp");
+            File tempFile = new File("resources/" + id + "_temp");      // Load the temp file into memory
             BufferedImage originalImage = ImageIO.read(tempFile);
 
             BufferedImage resizedImage = new BufferedImage(TILE_SIZE, TILE_SIZE, originalImage.getType() == 0? BufferedImage.TYPE_INT_ARGB : originalImage.getType());
             Graphics2D g = resizedImage.createGraphics();
-            g.drawImage(originalImage, 0, 0, TILE_SIZE, TILE_SIZE, null);
+            g.drawImage(originalImage, 0, 0, TILE_SIZE, TILE_SIZE, null);       // Draw a resized version to a buffer
             g.dispose();
 
-            String newPath = "/client/img/" + id + ".png";
-
+            String newPath = "/client/img/" + id + ".png";                         // Save the resized image buffer to the correct location
             ImageIO.write(resizedImage, "png", new File("resources" + newPath));
-            if (!tempFile.delete()) {
+
+            if (!tempFile.delete()) {                                              // Delete the temporary file
                 throw new IOException("Failed to delete temp file.");
             }
 
-            return "{\"status\":\"OK\", \"path\":\"" + newPath + "\"}";
+            return "{\"status\":\"OK\", \"path\":\"" + newPath + "\"}";         // Tell the client the new path (based on the random id)
 
         } catch (IOException ioe) {
 
