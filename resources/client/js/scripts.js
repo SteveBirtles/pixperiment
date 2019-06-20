@@ -1,11 +1,16 @@
 let images = [];
 let tiles = [];
 let loading;
+let uploading;
 
 const TILE_SIZE = 128;
 const CANVAS_WIDTH = 1152;
 const CANVAS_HEIGHT = 896;
 
+/*-------------------------------------------------------
+This function runs when the page first loads. Look for
+the line <body onload="pageLoad()"> in the HTML file.
+------------------------------------------------------*/
 function pageLoad() {
 
     loading = new Image();
@@ -18,44 +23,13 @@ function pageLoad() {
 
 }
 
-function canvasClick(event) {
-
-    let imageFile = document.getElementById("file");
-    if (imageFile.files[0] === undefined) return;
-
-    let canvas = document.getElementById('canvas');
-    let mouseX = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft - canvas.offsetLeft;
-    let mouseY = event.clientY + document.body.scrollTop + document.documentElement.scrollTop - canvas.offsetTop;
-
-    let x = Math.floor(mouseX / TILE_SIZE);
-    let y = Math.floor(mouseY / TILE_SIZE);
-
-    tiles.push({x: x, y: y, path: "-"});
-    drawCanvas();
-
-    let imageForm = document.getElementById("imageUploadForm");
-    let imageFormData = new FormData(imageForm);
-
-    fetch('/image/upload', {method: 'post', body: imageFormData},
-    ).then(response => response.json()
-    ).then(data => {
-
-        let tileFormData = new FormData();
-        tileFormData.append("path", data.path);
-        tileFormData.append("x", x);
-        tileFormData.append("y", y);
-
-        fetch('/tile/new', {method: 'post', body: tileFormData},
-        ).then(response => response.json()
-        ).then(data => {});
-
-        imageFile.value = "";
-
-    });
-
-}
-
+/*-------------------------------------------------------
+This function runs once every second to request a list of
+images and tiles from the server. It then redraws the canvas.
+------------------------------------------------------*/
 function update() {
+
+    if (uploading) return;
 
     fetch('/image/list', {method: 'get'},
     ).then(response => response.json()
@@ -96,6 +70,9 @@ function update() {
     });
 }
 
+/*-------------------------------------------------------
+This function redraws the canvas. It is called after each update.
+------------------------------------------------------*/
 function drawCanvas() {
 
     let context = document.getElementById('canvas').getContext('2d');
@@ -129,3 +106,47 @@ function drawCanvas() {
 
 }
 
+
+/*-------------------------------------------------------
+This function runs when the canvas is clicked. If an image
+has been chosen it will call the API request to post it.
+------------------------------------------------------*/
+function canvasClick(event) {
+
+    let imageFile = document.getElementById("file");
+    if (imageFile.files[0] === undefined) return;
+
+    let canvas = document.getElementById('canvas');
+    let mouseX = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft - canvas.offsetLeft;
+    let mouseY = event.clientY + document.body.scrollTop + document.documentElement.scrollTop - canvas.offsetTop;
+
+    let x = Math.floor(mouseX / TILE_SIZE);
+    let y = Math.floor(mouseY / TILE_SIZE);
+
+    uploading = true;
+    tiles.push({x: x, y: y, path: "/client/img/loading.png"});
+    drawCanvas();
+
+    let imageForm = document.getElementById("imageUploadForm");
+    let imageFormData = new FormData(imageForm);
+
+    fetch('/image/upload', {method: 'post', body: imageFormData},
+    ).then(response => response.json()
+    ).then(data => {
+
+        let tileFormData = new FormData();
+        tileFormData.append("path", data.path);
+        tileFormData.append("x", x);
+        tileFormData.append("y", y);
+
+        fetch('/tile/new', {method: 'post', body: tileFormData},
+        ).then(response => response.json()
+        ).then(data => {
+            uploading = false;
+        });
+
+        imageFile.value = "";
+
+    });
+
+}
