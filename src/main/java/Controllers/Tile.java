@@ -54,13 +54,29 @@ public class Tile {
         if (y >= MAX_Y) y = MAX_Y - 1;
         if (y < 0) y = 0;
 
-        TileModel t = new TileModel();
-        t.x = x;
-        t.y = y;
-        t.path = image;
+        boolean alreadyExists = false;
 
-        synchronized (tiles) {
-            tiles.add(t);
+        for (TileModel t: tiles) {
+            if (t.x == x && t.y == y) {
+                synchronized (tiles) {
+                    t.path = image;
+                }
+                alreadyExists = true;
+                break;
+            }
+        }
+
+        if (!alreadyExists) {
+
+            TileModel t = new TileModel();
+            t.x = x;
+            t.y = y;
+            t.path = image;
+
+            synchronized (tiles) {
+                tiles.add(t);
+            }
+
         }
 
         return "{\"status\": \"OK\"}";
