@@ -34,6 +34,7 @@ public class Image {
 
         JSONArray responses = new JSONArray();
         for (File file : files) {                                       // Build a JSON list of the file paths...
+            if (file.getName().toLowerCase().equals("thumbs.db")) continue;
             JSONObject image = new JSONObject();
             image.put("path", "/client/img/" + file.getName());
             responses.add(image);
